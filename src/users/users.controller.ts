@@ -1,4 +1,5 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UnprocessableEntityException } from '@nestjs/common';
+import { CreateUserDto } from './user.dto';
 
 interface User {
   id: string;
@@ -19,17 +20,17 @@ export class UsersController {
     { id: '8', name: 'Sarah Davis', email: 'sarah.davis@example.com' },
   ];
 
-  private validateEmail(email: string): void | BadRequestException {
+  private validateEmail(email: string): void | UnprocessableEntityException {
     if (!email.includes('@')) {
-      throw new BadRequestException('Email must contain @');
+      throw new UnprocessableEntityException('Email must contain @');
     }
 
     if (email.includes(' ')) {
-      throw new BadRequestException('Email must not contain spaces');
+      throw new UnprocessableEntityException('Email must not contain spaces');
     }
 
     if (email.indexOf('@') !== email.lastIndexOf('@')) {
-      throw new BadRequestException('Email must contain only one @');
+      throw new UnprocessableEntityException('Email must contain only one @');
     }
 
     // Verificar que haya un punto DESPUÉS del @
@@ -37,16 +38,16 @@ export class UsersController {
     const domain: string = email.substring(atIndex + 1);
 
     if (!domain.includes('.')) {
-      throw new BadRequestException('Email domain must contain a dot');
+      throw new UnprocessableEntityException('Email domain must contain a dot');
     }
 
     if (domain.endsWith('.')) {
-      throw new BadRequestException('Email domain cannot end with a dot');
+      throw new UnprocessableEntityException('Email domain cannot end with a dot');
     }
 
     // Validar que el dominio no empiece con punto
     if (domain.startsWith('.')) {
-      throw new BadRequestException('Email domain cannot start with a dot');
+      throw new UnprocessableEntityException('Email domain cannot start with a dot');
     }
   }
 
@@ -65,7 +66,7 @@ export class UsersController {
   }
 
   @Post()
-  createUser(@Body() body: User): User | BadRequestException {
+  createUser(@Body() body: CreateUserDto): User | BadRequestException {
     if (!body.name || !body.email) {
       throw new BadRequestException('Name and email are required');
     }
